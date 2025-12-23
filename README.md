@@ -8,7 +8,7 @@ This Python script was developed to automate the analysis of molecular interacti
 ## Key Features
 * **Automated H-Bond Detection:** Automatically identifies hydrogen bonds based on standard physical criteria (distance of $2.5 - 3.5 \text{ \AA}$) and specific donor/acceptor atom types (N/O).
 * **Functional Pocket Mapping:** Maps residue positions to the six major **HLA Pockets (A, B, C, D, E, and F)**.
-* **High-Throughput Data Export:** Compiles interaction details (atom paths, distances, and pocket identities) directly into a **CSV** format for further statistical analysis.
+* **High Throughput Data Export:** Compiles interaction details (atom paths, distances, and pocket identities) directly into a **CSV** format for further statistical analysis.
 * **Visual Automation:** Automatically configures PyMOL displays, including pocket color schemes and stick/cartoon representations for qualitative review.
 
 ## Technical & Personal Context
