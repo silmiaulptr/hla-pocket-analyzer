@@ -6,15 +6,16 @@ import os
 # Initialize PyMOL
 pymol.finish_launching()
 
-# Pocket mapping
+# HLA Pocket mapping residues (Optimized to avoid overlap)
 pocket_map = {
-    "A": [5, 7, 59, 63, 66, 159, 163, 167, 171],
+    "A": [5, 59, 159, 163, 167, 171],
     "B": [7, 9, 24, 34, 45, 63, 66, 67, 70, 99],
-    "C": [9, 70, 73, 74, 97],
-    "D": [99, 114, 155, 156, 159, 160],
-    "E": [97, 114, 147, 152, 156],
-    "F": [77, 80, 81, 84, 95, 123, 143, 146, 147]
+    "C": [9, 70, 73, 74],
+    "D": [99, 155, 156, 160],
+    "E": [97, 114, 147, 152],
+    "F": [77, 80, 81, 84, 95, 123, 143, 146]
 }
+
 
 def identify_pocket(chain, resi):
     try:
@@ -35,7 +36,7 @@ def get_full_atom_path(selection, index):
                 "stored.atom_path = f'/{model}//{chain}/{resn}\\\''{resi}/{name}'")
     return stored.atom_path
 
-# === VISUALISASI DASAR ===
+# BASIC VISUALIZATION
 cmd.hide("everything")
 cmd.show("cartoon", "receptor")
 cmd.color("lightblue", "receptor")
@@ -46,31 +47,38 @@ cmd.color("yellow", "peptide")
 cmd.bg_color("white")
 cmd.set("ray_opaque_background", "off")
 
-# === ANALISIS IKATAN HIDROGEN ===
-# Seleksi kandidat ikatan H (dalam 3.5 Å)
+# HYDROGEN BOND ANALYSIS
+# Select H-bond candidates (within 3.5 Å distance)
 cmd.select("hbonds", "(receptor within 3.5 of peptide) and (peptide within 3.5 of receptor)")
 
-# Visualisasi ikatan H sebagai garis putus-putus
+# Visualize H-bonds as dashed lines
 try:
     # Delete existing hbond_lines if they exist
     cmd.delete('hbond_lines')
     # Create new hydrogen bond visualization
-    cmd.distance("hbond_lines", "receptor", "peptide", mode=2)
+    cmd.distance("hbond_lines", "receptor", "peptide", mode=2, cutoff=3.5)
     cmd.set("dash_width", 2)
     cmd.set("dash_gap", 0.3)
     cmd.set("dash_color", "magenta")
+    # Show distance labels with 2 decimal places
+    cmd.set("label_digits", 2, "hbond_lines")
+    cmd.set("label_distance", 1, "hbond_lines")
+    
+    # Only show hydrogen bonds with meaningful values (between 2.0 and 3.5 Å)
+    cmd.hide("labels", "hbond_lines and distance > 3.5")
+    cmd.hide("dashes", "hbond_lines and distance > 3.5")
 except pymol.CmdException as e:
     print("Warning: Could not create hydrogen bond visualization:", str(e))
 
-# === DEFINISI POCKET HLA ===
-cmd.select("pocketA", "chain A and resi 5+7+59+63+66+159+163+167+171")
+# HLA POCKET DEFINITIONS
+cmd.select("pocketA", "chain A and resi 5+59+159+163+167+171")
 cmd.select("pocketB", "chain A and resi 7+9+24+34+45+63+66+67+70+99")
-cmd.select("pocketC", "chain A and resi 9+70+73+74+97")
-cmd.select("pocketD", "chain A and resi 99+114+155+156+159+160")
-cmd.select("pocketE", "chain A and resi 97+114+147+152+156")
-cmd.select("pocketF", "chain A and resi 77+80+81+84+95+123+143+146+147")
+cmd.select("pocketC", "chain A and resi 9+70+73+74")
+cmd.select("pocketD", "chain A and resi 99+155+156+160")
+cmd.select("pocketE", "chain A and resi 97+114+147+152")
+cmd.select("pocketF", "chain A and resi 77+80+81+84+95+123+143+146")
 
-# Pewarnaan dan tampilan stick pocket
+# Color and show pocket sticks for qualitative analysis
 cmd.color("red", "pocketA")
 cmd.color("orange", "pocketB")
 cmd.color("green", "pocketC")
@@ -79,7 +87,7 @@ cmd.color("cyan", "pocketE")
 cmd.color("purple", "pocketF")
 cmd.show("sticks", "pocketA or pocketB or pocketC or pocketD or pocketE or pocketF")
 
-# === ANALISIS IKATAN HIDROGEN + IDENTIFIKASI POCKET ===
+# DATA EXPORT & POCKET IDENTIFICATION
 from pymol import cmd
 import csv
 import os
@@ -98,14 +106,14 @@ except Exception as e:
     output_path = os.path.join(script_dir, "hbonds_info.csv")
     print(f"Could not access Documents folder. CSV will be saved to: {output_path}")
 
-# Daftar residu tiap pocket
+# Pocket mapping residues
 pocket_map = {
-    "A": [5, 7, 59, 63, 66, 159, 163, 167, 171],
+    "A": [5, 59, 159, 163, 167, 171],
     "B": [7, 9, 24, 34, 45, 63, 66, 67, 70, 99],
-    "C": [9, 70, 73, 74, 97],
-    "D": [99, 114, 155, 156, 159, 160],
-    "E": [97, 114, 147, 152, 156],
-    "F": [77, 80, 81, 84, 95, 123, 143, 146, 147]
+    "C": [9, 70, 73, 74],
+    "D": [99, 155, 156, 160],
+    "E": [97, 114, 147, 152],
+    "F": [77, 80, 81, 84, 95, 123, 143, 146]
 }
 
 def identify_pocket(chain, resi):
@@ -323,11 +331,22 @@ try:
                            "Peptide Name", "Peptide Atom", "Pocket"])
             
             if hbonds_data:
-                for hb in hbonds_data:
-                    writer.writerow([hb["receptor_path"], hb["peptide_path"], f"{hb['distance']:.2f}", 
-                                    hb["receptor_chain"], hb["receptor_resi"], hb["receptor_resn"], hb["receptor_atom"],
-                                    hb["peptide_chain"], hb["peptide_resi"], hb["peptide_resn"], hb["peptide_atom"],
-                                    hb["pocket"]])
+                # Filter out bonds with distances > 3.5 Å (same as those hidden in visualization)
+                valid_hbonds = [hb for hb in hbonds_data if hb['distance'] <= 3.5]
+                
+                if valid_hbonds:
+                    for hb in valid_hbonds:
+                        writer.writerow([hb["receptor_path"], hb["peptide_path"], f"{round(hb['distance'], 1):.1f}", 
+                                        hb["receptor_chain"], hb["receptor_resi"], hb["receptor_resn"], hb["receptor_atom"],
+                                        hb["peptide_chain"], hb["peptide_resi"], hb["peptide_resn"], hb["peptide_atom"],
+                                        hb["pocket"]])
+                else:
+                    writer.writerow(["NO VALID HYDROGEN BONDS FOUND (≤ 3.5 Å)", "", "", "", "", "", "", "", "", "", "", ""])
+                
+                # Print summary of filtered bonds
+                print(f"Found {len(hbonds_data)} total hydrogen bonds, {len(valid_hbonds)} valid bonds (≤ 3.5 Å)")
+                print(f"Excluded {len(hbonds_data) - len(valid_hbonds)} bonds with distances > 3.5 Å from CSV output")
+                
             else:
                 writer.writerow(["NO HYDROGEN BONDS FOUND", "", "", "", "", "", "", "", "", "", "", ""])
         
