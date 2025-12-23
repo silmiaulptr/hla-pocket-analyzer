@@ -14,7 +14,7 @@ This Python script was developed to automate the analysis of molecular interacti
 ## Technical & Personal Context
 This script is an integral part of my undergraduate thesis at **UIN Sunan Gunung Djati Bandung**. As the first student to initiate *in silico* vaccine design research in my department, I developed this tool to prove that high quality molecular research can be achieved through computational automation, even when physical laboratory facilities are limited. 
 
-This project reflects my journey as a self-taught bioinformatician, demonstrating my ability to bridge biological concepts with practical programming solutions.
+This project reflects my journey as a self taught bioinformatician, demonstrating my ability to bridge biological concepts with practical programming solutions.
 
 ## Prerequisites
 * **Software:** PyMOL 3.1.5.1.
