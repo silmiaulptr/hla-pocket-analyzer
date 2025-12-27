@@ -24,5 +24,5 @@ This project reflects my journey as a self taught bioinformatician, demonstratin
 ## How to Use
 1. Load your receptor and peptide structures into PyMOL.
 2. Ensure your selections are named `receptor` and `peptide`.
-3. Run the script using the command: `run idenhbond.py`.
+3. Run the script using the command: `hla-pocket-analyzer.py`.
 4. Find your results in the `Documents/PyMOL_Results` folder.
